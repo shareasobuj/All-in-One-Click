@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এক ক্লিকে সব | All-in-One Smart Hub</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Hind Siliguri & Inter for clean Bengali & English typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Hind Siliguri"', '"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom subtle animations and scrollbar */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container (Replaces alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 glass-card border-b border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-bolt text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent leading-tight">
+                        এক ক্লিকে সব
+                    </h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide hidden sm:block">ALL-IN-ONE SMART HUB</p>
+                </div>
+            </div>
+
+            <!-- Right Controls: Clock & Dark Mode Toggle -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div id="live-clock" class="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                    <i class="fa-regular fa-clock text-indigo-500"></i>
+                    <span>সময় লোড হচ্ছে...</span>
+                </div>
+                
+                <button id="theme-toggle" aria-label="ডার্ক মোড পরিবর্তন করুন" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-400 transition-all active:scale-95">
+                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">
+
+        <!-- Hero & Smart Search Section -->
+        <section class="text-center max-w-3xl mx-auto space-y-6">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-300 text-sm font-medium">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                স্মার্ট মাল্টি-সার্চ ও দৈনন্দিন সমাধান কেন্দ্র
+            </div>
+
+            <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+                যেকোনো কিছু খুঁজুন, <span class="text-indigo-600 dark:text-indigo-400">এক জায়গায়</span>
+            </h2>
+            <p class="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-2xl mx-auto">
+                সার্চ বক্সে যেকোনো বিষয় লিখে <strong>Enter</strong> চাপুন—একসাথে গুগল, ইউটিউব, গুগল ম্যাপ এবং উইকিপিডিয়ার তাৎক্ষণিক রেজাল্ট ও প্রিভিউ পেয়ে যান।
+            </p>
+
+            <!-- Smart Search Bar Form -->
+            <form id="smart-search-form" class="relative max-w-2xl mx-auto mt-6">
+                <div class="relative flex items-center w-full rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/60 dark:shadow-none border-2 border-slate-200/80 dark:border-slate-700 focus-within:border-indigo-500 dark:focus-within:border-indigo-500 transition-all overflow-hidden">
+                    <div class="pl-4 sm:pl-5 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="যেমন: কক্সবাজার, বিরিয়ানি রেসিপি, নিউটনের সূত্র..." 
+                        autocomplete="off"
+                        class="w-full py-4 px-3 sm:px-4 text-base sm:text-lg bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+                    >
+                    <button 
+                        type="button" 
+                        id="clear-search-btn" 
+                        title="মুছে ফেলুন"
+                        class="hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    >
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="m-1.5 px-5 sm:px-7 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-base transition-all active:scale-95 flex items-center gap-2 shrink-0 shadow-md shadow-indigo-600/20"
+                    >
+                        <span>খুঁজুন</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Quick Trending Suggestions -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs sm:text-sm">
+                    <span class="text-slate-500 dark:text-slate-400">জনপ্রিয় সার্চ:</span>
+                    <button type="button" onclick="quickSearch('কক্সবাজার সমুদ্র সৈকত')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-600 dark:text-slate-300 transition">কক্সবাজার</button>
+                    <button type="button" onclick="quickSearch('কাচ্চি বিরিয়ানি রেসিপি')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-600 dark:text-slate-300 transition">কাচ্চি বিরিয়ানি</button>
+                    <button type="button" onclick="quickSearch('রবীন্দ্রনাথ ঠাকুর')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-600 dark:text-slate-300 transition">রবীন্দ্রনাথ ঠাকুর</button>
+                    <button type="button" onclick="quickSearch('বাংলাদেশ জাতীয় সংসদ ভবন')" class="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-600 dark:text-slate-300 transition">সংসদ ভবন</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Multi-Platform Search Results & Live Preview Section (Hidden initially until search) -->
+        <section id="search-results-section" class="hidden animate-fade-in space-y-6 bg-white dark:bg-slate-800/90 p-5 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-4">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">সার্চ ফলাফল ও প্রিভিউ</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
+                        "<span id="display-query" class="text-indigo-600 dark:text-indigo-400"></span>" এর জন্য সব প্ল্যাটফর্ম
+                    </h3>
+                </div>
+                <button onclick="openAllTabs()" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white text-sm font-medium transition active:scale-95">
+                    <i class="fa-solid fa-up-right-from-square"></i>
+                    <span>সবগুলো একসাথে ওপেন করুন</span>
+                </button>
+            </div>
+
+            <!-- 4 Platform Action Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Google Search Card -->
+                <a id="link-google" href="#" target="_blank" rel="noopener noreferrer" class="group p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all hover:shadow-md flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
+                            <i class="fa-brands fa-google"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300">ওয়েব সার্চ</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">গুগল সার্চ</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1" id="preview-text-google">ওয়েবসাইট ও তথ্য দেখুন</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-sm font-semibold text-blue-600 dark:text-blue-400">
+                        <span>রেজাল্ট ওপেন করুন</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                    </div>
+                </a>
+
+                <!-- YouTube Search Card -->
+                <a id="link-youtube" href="#" target="_blank" rel="noopener noreferrer" class="group p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-500 transition-all hover:shadow-md flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center text-xl">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300">ভিডিও</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">ইউটিউব ভিডিও</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1" id="preview-text-youtube">টিউটোরিয়াল ও ভিডিও দেখুন</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-sm font-semibold text-red-600 dark:text-red-400">
+                        <span>ভিডিও দেখুন</span>
+                        <i class="fa-solid fa-play group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+
+                <!-- Google Maps Search Card -->
+                <a id="link-maps" href="#" target="_blank" rel="noopener noreferrer" class="group p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all hover:shadow-md flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300">লোকেশন</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">গুগল ম্যাপ</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1" id="preview-text-maps">অবস্থান ও দিকনির্দেশনা</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>ম্যাপে দেখুন</span>
+                        <i class="fa-solid fa-map-location-dot group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+
+                <!-- Wikipedia Search Card -->
+                <a id="link-wiki" href="#" target="_blank" rel="noopener noreferrer" class="group p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all hover:shadow-md flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
+                            <i class="fa-brands fa-wikipedia-w"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-300">বিশ্বকোষ</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">উইকিপিডিয়া</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1" id="preview-text-wiki">বিস্তারিত তথ্য ও ইতিহাস</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-sm font-semibold text-amber-600 dark:text-amber-400">
+                        <span>নিবন্ধ পড়ুন</span>
+                        <i class="fa-solid fa-book-open group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Live Instant Preview Box (Wikipedia Summary + Interactive Map Embed) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+                <!-- Wikipedia Live Summary Preview -->
+                <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
+                                <i class="fa-brands fa-wikipedia-w text-amber-500"></i>
+                                <span>তাৎক্ষণিক উইকিপিডিয়া সারসংক্ষেপ</span>
+                            </div>
+                            <span id="wiki-lang-badge" class="text-[11px] px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">বাংলা উইকি</span>
+                        </div>
+                        <div id="wiki-preview-content" class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed space-y-2">
+                            <p class="italic text-slate-400">তথ্য লোড হচ্ছে...</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+                        <button type="button" onclick="copyWikiSummary()" class="text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 flex items-center gap-1.5 transition">
+                            <i class="fa-regular fa-copy"></i> সারসংক্ষেপ কপি করুন
+                        </button>
+                        <a id="wiki-read-more" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                            পুরো আর্টিকেল পড়ুন →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Live Map Preview -->
+                <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
+                            <i class="fa-solid fa-map text-emerald-500"></i>
+                            <span>লাইভ ম্যাপ প্রিভিউ</span>
+                        </div>
+                        <a id="map-external-btn" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline">
+                            বড় পর্দায় দেখুন ↗
+                        </a>
+                    </div>
+                    <div class="relative w-full h-48 sm:h-52 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-200 dark:bg-slate-800">
+                        <iframe 
+                            id="map-preview-iframe"
+                            title="Google Map Live Preview"
+                            class="w-full h-full border-0"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="about:blank">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mood & Problem Solver Section ("মুড ও সমস্যা সমাধান") -->
+        <section id="mood-solver-section" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>স্মার্ট অ্যাসিস্ট্যান্ট</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+                        মুড ও সমস্যা সমাধান
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-1">
+                        আপনার বর্তমান অবস্থা বা প্রয়োজন নির্বাচন করুন—সাথে সাথে পেয়ে যান কার্যকরী পরামর্শ, ভিডিও এবং দরকারি ওয়েবসাইটের শর্টকাট।
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mood Selector Buttons Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4" id="mood-buttons-grid">
+                <!-- Buttons injected dynamically via JS for clean management -->
+            </div>
+
+            <!-- Selected Mood Dynamic Solution Panel -->
+            <div id="mood-solution-panel" class="animate-fade-in rounded-3xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 p-6 sm:p-8 shadow-md transition-all">
+                <!-- Content dynamically rendered here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700 dark:text-slate-200">এক ক্লিকে সব</span>
+                <span>•</span>
+                <span>আপনার দৈনন্দিন ডিজিটাল সহায়ক</span>
+            </div>
+            <p class="text-xs sm:text-sm text-center sm:text-right">
+                তৈরি করা হয়েছে ভালোবাসা ও আধুনিক ওয়েব প্রযুক্তির সমন্বয়ে
+            </p>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // ==========================================
+        // 1. STATE & DATA CONFIGURATION
+        // ==========================================
+        let currentQuery = "";
+        let currentWikiText = "";
+        let activeMoodId = "study";
+
+        // Mood & Problem Solver Comprehensive Data
+        const moodData = [
+            {
+                id: "study",
+                title: "পড়াশোনা",
+                emoji: "📚",
+                color: "indigo",
+                bgGradient: "from-indigo-500 to-blue-600",
+                badgeBg: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300",
+                headline: "মনোযোগ দিয়ে পড়াশোনা ও নতুন কিছু শেখার স্মার্ট গাইড",
+                advice: [
+                    "পোমোডোরো টেকনিক ব্যবহার করুন: টানা ২৫ মিনিট মনোযোগ দিয়ে পড়ুন, এরপর ৫ মিনিট বিরতি নিন।",
+                    "পড়ার সময় মোবাইল ফোন 'Do Not Disturb' মোডে রাখুন এবং টেবিলে এক গ্লাস পানি রাখুন।",
+                    "কঠিন বিষয়গুলো ছোট ছোট অংশে ভাগ করে নোট খাতায় লিখুন বা কাউকে বোঝানোর চেষ্টা করুন।"
+                ],
+                shortcuts: [
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "Lo-Fi Study Music (মনোযোগ বাড়াতে)",
+                        desc: "পড়ার সময় ব্যাকগ্রাউন্ডে শোনার জন্য শান্ত মিউজিক",
+                        url: "https://www.youtube.com/results?search_query=lofi+hip+hop+radio+beats+to+relax+study+to"
+                    },
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-graduation-cap text-indigo-500",
+                        title: "Khan Academy বাংলা",
+                        desc: "গণিত, বিজ্ঞান ও প্রোগ্রামিং শেখার ফ্রি প্ল্যাটফর্ম",
+                        url: "https://bn.khanacademy.org/"
+                    },
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-book-open-reader text-emerald-500",
+                        title: "10 Minute School",
+                        desc: "একাডেমিক ও স্কিল ডেভেলপমেন্ট কোর্স ও ভিডিও",
+                        url: "https://10minuteschool.com/"
+                    },
+                    {
+                        type: "টুল",
+                        icon: "fa-solid fa-language text-amber-500",
+                        title: "Google Translate & Dictionary",
+                        desc: "যেকোনো ইংরেজি শব্দের অর্থ ও উচ্চারণ জানুন",
+                        url: "https://translate.google.com/?sl=en&tl=bn"
+                    }
+                ]
+            },
+            {
+                id: "travel",
+                title: "ভ্রমণ",
+                emoji: "✈️",
+                color: "emerald",
+                bgGradient: "from-emerald-500 to-teal-600",
+                badgeBg: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
+                headline: "নিরাপদ ও আনন্দময় ভ্রমণের পূর্বপ্রস্তুতি ও গাইড",
+                advice: [
+                    "ভ্রমণে বের হওয়ার আগে গন্তব্যের আবহাওয়ার পূর্বাভাস দেখে নিন এবং প্রয়োজনীয় ওষুধ সাথে রাখুন।",
+                    "জাতীয় পরিচয়পত্র (NID) বা পাসপোর্টের ফটোকপি এবং ডিজিটাল কপি ফোনে সেভ করে রাখুন।",
+                    "অপরিচিত জায়গায় গেলে গুগল ম্যাপে অফলাইন ম্যাপ ডাউনলোড করে রাখুন যাতে নেটওয়ার্ক না থাকলেও পথ চিনতে পারেন।"
+                ],
+                shortcuts: [
+                    {
+                        type: "টুল",
+                        icon: "fa-solid fa-map-location-dot text-emerald-500",
+                        title: "Google Maps রুট প্ল্যানার",
+                        desc: "রাস্তার ট্রাফিক ও দূরত্ব দেখুন",
+                        url: "https://www.google.com/maps"
+                    },
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-train text-orange-500",
+                        title: "বাংলাদেশ রেলওয়ে ই-টিকেট",
+                        desc: "অনলাইনে ট্রেনের টিকিট বুকিং ও সময়সূচি",
+                        url: "https://eticket.railway.gov.bd/"
+                    },
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "বাংলাদেশ ট্রাভেল ভ্লগ ও গাইড",
+                        desc: "দর্শনীয় স্থানগুলোর বিস্তারিত ভ্রমণ ভিডিও",
+                        url: "https://www.youtube.com/results?search_query=bangladesh+travel+vlog+guide"
+                    },
+                    {
+                        type: "টুল",
+                        icon: "fa-solid fa-cloud-sun-rain text-sky-500",
+                        title: "লাইভ আবহাওয়ার পূর্বাভাস",
+                        desc: "আগামী কয়েকদিনের আবহাওয়া ও বৃষ্টির খবর",
+                        url: "https://www.google.com/search?q=weather+forecast+bangladesh"
+                    }
+                ]
+            },
+            {
+                id: "cooking",
+                title: "রান্না",
+                emoji: "🍲",
+                color: "orange",
+                bgGradient: "from-orange-500 to-amber-600",
+                badgeBg: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300",
+                headline: "সহজ ও সুস্বাদু রান্নার টিপস এবং রেসিপি ভাণ্ডার",
+                advice: [
+                    "রান্না শুরু করার আগেই সব মসলা, তেল ও কাটা সবজি হাতের কাছে গুছিয়ে রাখুন—এতে রান্না দ্রুত ও ঝামেলাহীন হয়।",
+                    "তরকারিতে লবণ বেশি হয়ে গেলে একটি আলু কেটে দিয়ে দিন অথবা সামান্য লেবুর রস ব্যবহার করুন।",
+                    "মাংস বা মাছ মেরিনেট করে অন্তত ২০-৩০ মিনিট রেখে দিলে স্বাদ বহুগুণ বেড়ে যায়।"
+                ],
+                shortcuts: [
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "সহজ বাংলা রান্নার রেসিপি",
+                        desc: "ঘরোয়া ও রেস্টুরেন্ট স্টাইল রান্নার ভিডিও",
+                        url: "https://www.youtube.com/results?search_query=easy+bengali+cooking+recipes"
+                    },
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-solid fa-stopwatch text-amber-500",
+                        title: "১০ মিনিটে ঝটপট নাস্তা",
+                        desc: "অল্প সময়ে তৈরি করা যায় এমন স্বাস্থ্যকর নাস্তা",
+                        url: "https://www.youtube.com/results?search_query=10+minutes+quick+snacks+recipe+bangla"
+                    },
+                    {
+                        type: "সার্চ",
+                        icon: "fa-brands fa-google text-blue-500",
+                        title: "মসলার সঠিক পরিমাপ গাইড",
+                        desc: "কোন রান্নায় কতটুকু মসলা দেবেন তার তালিকা",
+                        url: "https://www.google.com/search?q=bengali+cooking+spices+measurement+guide"
+                    },
+                    {
+                        type: "ম্যাপ",
+                        icon: "fa-solid fa-utensils text-emerald-500",
+                        title: "কাছাকাছি সেরা রেস্টুরেন্ট",
+                        desc: "রান্না করতে ইচ্ছে না করলে আশেপাশের খাবার খুঁজুন",
+                        url: "https://www.google.com/maps/search/restaurants+near+me"
+                    }
+                ]
+            },
+            {
+                id: "sad",
+                title: "মন খারাপ",
+                emoji: "💙",
+                color: "sky",
+                bgGradient: "from-sky-500 to-indigo-600",
+                badgeBg: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300",
+                headline: "মন ভালো করার উষ্ণ পরামর্শ ও প্রশান্তির মাধ্যম",
+                advice: [
+                    "লম্বা করে ৪ সেকেন্ড শ্বাস নিন, ৪ সেকেন্ড ধরে রাখুন এবং ৬ সেকেন্ড ধরে ধীরে ধীরে ছেড়ে দিন। এটি তাৎক্ষণিক মানসিক চাপ কমায়।",
+                    "মনে রাখবেন, খারাপ সময় স্থায়ী নয়। আপনার প্রিয় কোনো বন্ধুর সাথে কথা বলুন বা খোলা আকাশের নিচে ১০ মিনিট হাঁটুন।",
+                    "নিজেকে দোষারোপ করা বন্ধ করুন—এক কাপ গরম চা বা কফি নিয়ে প্রিয় কোনো গান শুনুন।"
+                ],
+                shortcuts: [
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "মন ভালো করার মিউজিক ও প্রকৃতির শব্দ",
+                        desc: "বৃষ্টির শব্দ ও প্রশান্তিদায়ক সুর",
+                        url: "https://www.youtube.com/results?search_query=relaxing+rain+sounds+and+calm+music+for+stress+relief"
+                    },
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-solid fa-face-laugh-beam text-amber-500",
+                        title: "মজার কমেডি ও হাসির ভিডিও",
+                        desc: "মন হালকা করতে কিছু নির্মল বিনোদন",
+                        url: "https://www.youtube.com/results?search_query=clean+funny+comedy+videos+bangla"
+                    },
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-spa text-teal-500",
+                        title: "৫ মিনিটের গাইডেড মেডিটেশন",
+                        desc: "মানসিক অস্থিরতা দূর করার সহজ ব্যায়াম",
+                        url: "https://www.youtube.com/results?search_query=5+minute+guided+meditation+bangla"
+                    },
+                    {
+                        type: "সার্চ",
+                        icon: "fa-solid fa-heart text-rose-500",
+                        title: "অনুপ্রেরণামূলক উক্তি ও গল্প",
+                        desc: "নতুন করে ঘুরে দাঁড়ানোর সাহস জোগাবে",
+                        url: "https://www.google.com/search?q=inspirational+quotes+in+bengali"
+                    }
+                ]
+            },
+            {
+                id: "health",
+                title: "স্বাস্থ্য ও ফিটনেস",
+                emoji: "🏃‍♂️",
+                color: "rose",
+                bgGradient: "from-rose-500 to-pink-600",
+                badgeBg: "bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300",
+                headline: "সুস্থ শরীর ও সতেজ মনের জন্য দৈনন্দিন অভ্যাস",
+                advice: [
+                    "প্রতিদিন অন্তত ৭-৮ গ্লাস বিশুদ্ধ পানি পান করুন এবং একটানা ৩০ মিনিটের বেশি বসে থাকবেন না।",
+                    "রাতের খাবার ঘুমানোর অন্তত ২ ঘণ্টা আগে শেষ করুন এবং প্রতিদিন ৭-৮ ঘণ্টা নিরবচ্ছিন্ন ঘুম নিশ্চিত করুন।",
+                    "সকালে ঘুম থেকে উঠে ১০ মিনিট হালকা স্ট্রেচিং বা ফ্রি-হ্যান্ড এক্সারসাইজ করলে সারাদিন শরীরে এনার্জি থাকে।"
+                ],
+                shortcuts: [
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "ঘরে বসে ১৫ মিনিটের ব্যায়াম",
+                        desc: "কোনো যন্ত্রপাতি ছাড়াই ফিট থাকার ওয়ার্কআউট",
+                        url: "https://www.youtube.com/results?search_query=15+minute+home+workout+no+equipment"
+                    },
+                    {
+                        type: "ম্যাপ",
+                        icon: "fa-solid fa-hospital text-rose-500",
+                        title: "কাছাকাছি ফার্মেসি ও হাসপাতাল",
+                        desc: "জরুরি প্রয়োজনে নিকটস্থ স্বাস্থ্যকেন্দ্র খুঁজুন",
+                        url: "https://www.google.com/maps/search/pharmacy+and+hospital+near+me"
+                    },
+                    {
+                        type: "টুল",
+                        icon: "fa-solid fa-calculator text-indigo-500",
+                        title: "BMI ক্যালকুলেটর",
+                        desc: "আপনার উচ্চতা অনুযায়ী আদর্শ ওজন জানুন",
+                        url: "https://www.google.com/search?q=bmi+calculator"
+                    },
+                    {
+                        type: "সার্চ",
+                        icon: "fa-solid fa-apple-whole text-emerald-500",
+                        title: "সুষম খাদ্য তালিকা (Diet Chart)",
+                        desc: "দৈনন্দিন পুষ্টিকর খাবারের গাইড",
+                        url: "https://www.google.com/search?q=healthy+balanced+diet+chart+bangla"
+                    }
+                ]
+            },
+            {
+                id: "tech",
+                title: "টেক ও স্কিল",
+                emoji: "💻",
+                color: "purple",
+                bgGradient: "from-purple-500 to-violet-600",
+                badgeBg: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
+                headline: "ডিজিটাল দক্ষতা অর্জন ও প্রযুক্তিগত সমস্যার সমাধান",
+                advice: [
+                    "কম্পিউটার বা ফোন স্লো হয়ে গেলে অপ্রয়োজনীয় ক্যাশ (Cache) ফাইল পরিষ্কার করুন এবং ডিভাইস রিস্টার্ট দিন।",
+                    "সব অনলাইন অ্যাকাউন্টে শক্তিশালী পাসওয়ার্ড এবং টু-ফ্যাক্টর অথেনটিকেশন (2FA) চালু রাখুন।",
+                    "নতুন কোনো স্কিল (যেমন: কোডিং, ডিজাইন, এক্সেল) শিখতে প্রতিদিন অন্তত ৩০ মিনিট প্র্যাকটিস করুন।"
+                ],
+                shortcuts: [
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-code text-purple-500",
+                        title: "freeCodeCamp & W3Schools",
+                        desc: "ওয়েব ডেভেলপমেন্ট ও প্রোগ্রামিং শেখার সেরা জায়গা",
+                        url: "https://www.w3schools.com/"
+                    },
+                    {
+                        type: "ভিডিও",
+                        icon: "fa-brands fa-youtube text-red-500",
+                        title: "Microsoft Excel ও অফিস টিপস",
+                        desc: "কাজের গতি বাড়ানোর জরুরি শর্টকাট",
+                        url: "https://www.youtube.com/results?search_query=microsoft+excel+tutorial+bangla"
+                    },
+                    {
+                        type: "টুল",
+                        icon: "fa-solid fa-gauge-high text-sky-500",
+                        title: "ইন্টারনেট স্পিড টেস্ট",
+                        desc: "আপনার ওয়াইফাই বা মোবাইল ডাটার গতি পরীক্ষা করুন",
+                        url: "https://fast.com/"
+                    },
+                    {
+                        type: "ওয়েবসাইট",
+                        icon: "fa-solid fa-wand-magic-sparkles text-amber-500",
+                        title: "Canva ডিজাইন টুল",
+                        desc: "সহজেই পোস্টার, সিভি ও প্রেজেন্টেশন তৈরি করুন",
+                        url: "https://www.canva.com/"
+                    }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 2. INITIALIZATION & THEME MANAGEMENT
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            initClock();
+            renderMoodButtons();
+            selectMood(activeMoodId);
+            setupSearchListeners();
+        });
+
+        function initTheme() {
+            const themeToggle = document.getElementById("theme-toggle");
+            const themeIcon = document.getElementById("theme-icon");
+            const htmlEl = document.documentElement;
+
+            // Check saved preference or system preference
+            const savedTheme = localStorage.getItem("smartHubTheme");
+            if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                htmlEl.classList.add("dark");
+                themeIcon.classList.replace("fa-moon", "fa-sun");
+            }
+
+            themeToggle.addEventListener("click", () => {
+                htmlEl.classList.toggle("dark");
+                const isDark = htmlEl.classList.contains("dark");
+                localStorage.setItem("smartHubTheme", isDark ? "dark" : "light");
+                
+                if (isDark) {
+                    themeIcon.classList.replace("fa-moon", "fa-sun");
+                    showToast("ডার্ক মোড চালু হয়েছে 🌙");
+                } else {
+                    themeIcon.classList.replace("fa-sun", "fa-moon");
+                    showToast("লাইট মোড চালু হয়েছে ☀️");
+                }
+            });
+        }
+
+        function initClock() {
+            const clockEl = document.getElementById("live-clock").querySelector("span");
+            function updateClock() {
+                const now = new Date();
+                const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                clockEl.textContent = now.toLocaleTimeString('bn-BD', options);
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        // ==========================================
+        // 3. SMART MULTI-SEARCH & LIVE PREVIEW LOGIC
+        // ==========================================
+        function setupSearchListeners() {
+            const form = document.getElementById("smart-search-form");
+            const input = document.getElementById("search-input");
+            const clearBtn = document.getElementById("clear-search-btn");
+
+            input.addEventListener("input", () => {
+                if (input.value.trim().length > 0) {
+                    clearBtn.classList.remove("hidden");
+                } else {
+                    clearBtn.classList.add("hidden");
+                }
+            });
+
+            clearBtn.addEventListener("click", () => {
+                input.value = "";
+                clearBtn.classList.add("hidden");
+                input.focus();
+            });
+
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const query = input.value.trim();
+                if (!query) {
+                    showToast("অনুগ্রহ করে সার্চ বক্সে কিছু লিখুন!");
+                    input.focus();
+                    return;
+                }
+                executeSmartSearch(query);
+            });
+        }
+
+        function quickSearch(text) {
+            const input = document.getElementById("search-input");
+            const clearBtn = document.getElementById("clear-search-btn");
+            input.value = text;
+            clearBtn.classList.remove("hidden");
+            executeSmartSearch(text);
+        }
+
+        function executeSmartSearch(query) {
+            currentQuery = query;
+            const encodedQuery = encodeURIComponent(query);
+
+            // Show results section smoothly
+            const resultsSection = document.getElementById("search-results-section");
+            resultsSection.classList.remove("hidden");
+            document.getElementById("display-query").textContent = query;
+
+            // Construct URLs
+            const googleUrl = `https://www.google.com/search?q=${encodedQuery}`;
+            const youtubeUrl = `https://www.youtube.com/results?search_query=${encodedQuery}`;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+            const wikiUrl = `https://bn.wikipedia.org/w/index.php?search=${encodedQuery}`;
+
+            // Update Action Cards
+            document.getElementById("link-google").href = googleUrl;
+            document.getElementById("preview-text-google").textContent = `"${query}" - গুগল ওয়েব রেজাল্ট`;
+
+            document.getElementById("link-youtube").href = youtubeUrl;
+            document.getElementById("preview-text-youtube").textContent = `"${query}" - সম্পর্কিত ভিডিওসমূহ`;
+
+            document.getElementById("link-maps").href = mapsUrl;
+            document.getElementById("preview-text-maps").textContent = `"${query}" - ম্যাপে অবস্থান`;
+
+            document.getElementById("link-wiki").href = wikiUrl;
+            document.getElementById("preview-text-wiki").textContent = `"${query}" - উইকিপিডিয়া তথ্য`;
+
+            // Update Live Map Iframe Embed (No API key required for standard search embed)
+            const mapEmbedUrl = `https://maps.google.com/maps?q=${encodedQuery}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+            document.getElementById("map-preview-iframe").src = mapEmbedUrl;
+            document.getElementById("map-external-btn").href = mapsUrl;
+
+            // Fetch Live Wikipedia Summary (Bengali first, fallback to English)
+            fetchWikipediaPreview(query, wikiUrl);
+
+            // Scroll smoothly to results
+            resultsSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        async function fetchWikipediaPreview(query, fallbackUrl) {
+            const contentEl = document.getElementById("wiki-preview-content");
+            const readMoreEl = document.getElementById("wiki-read-more");
+            const langBadge = document.getElementById("wiki-lang-badge");
+
+            contentEl.innerHTML = `<div class="flex items-center gap-2 text-indigo-500"><i class="fa-solid fa-circle-notch fa-spin"></i> <span>উইকিপিডিয়া থেকে তথ্য আনা হচ্ছে...</span></div>`;
+            readMoreEl.href = fallbackUrl;
+
+            try {
+                // Step 1: Search Bengali Wikipedia API
+                const bnSearchUrl = `https://bn.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+                const bnRes = await fetch(bnSearchUrl);
+                const bnData = await bnRes.json();
+
+                if (bnData.query && bnData.query.search && bnData.query.search.length > 0) {
+                    const pageTitle = bnData.query.search[0].title;
+                    const summaryUrl = `https://bn.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+                    const sumRes = await fetch(summaryUrl);
+                    const sumData = await sumRes.json();
+
+                    if (sumData.extract) {
+                        langBadge.textContent = "বাংলা উইকিপিডিয়া";
+                        currentWikiText = sumData.extract;
+                        contentEl.innerHTML = `
+                            <h5 class="font-bold text-slate-900 dark:text-white text-base">${sumData.title}</h5>
+                            <p class="line-clamp-4">${sumData.extract}</p>
+                        `;
+                        readMoreEl.href = sumData.content_urls?.desktop?.page || fallbackUrl;
+                        return;
+                    }
+                }
+
+                // Step 2: Fallback to English Wikipedia if Bengali article not found
+                const enSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+                const enRes = await fetch(enSearchUrl);
+                const enData = await enRes.json();
+
+                if (enData.query && enData.query.search && enData.query.search.length > 0) {
+                    const pageTitle = enData.query.search[0].title;
+                    const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+                    const sumRes = await fetch(summaryUrl);
+                    const sumData = await sumRes.json();
+
+                    if (sumData.extract) {
+                        langBadge.textContent = "English Wikipedia";
+                        currentWikiText = sumData.extract;
+                        contentEl.innerHTML = `
+                            <h5 class="font-bold text-slate-900 dark:text-white text-base">${sumData.title}</h5>
+                            <p class="line-clamp-4">${sumData.extract}</p>
+                        `;
+                        readMoreEl.href = sumData.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`;
+                        return;
+                    }
+                }
+
+                // If nothing found
+                currentWikiText = "";
+                contentEl.innerHTML = `<p class="text-slate-500 dark:text-slate-400">"${query}" সম্পর্কে সরাসরি উইকিপিডিয়া সারসংক্ষেপ পাওয়া যায়নি। উপরের গুগল বা উইকিপিডিয়া বাটনে ক্লিক করে বিস্তারিত খুঁজুন।</p>`;
+            } catch (error) {
+                currentWikiText = "";
+                contentEl.innerHTML = `<p class="text-slate-500 dark:text-slate-400">নেটওয়ার্ক সমস্যার কারণে প্রিভিউ লোড করা যায়নি। সরাসরি বাটনে ক্লিক করে ওপেন করুন।</p>`;
+            }
+        }
+
+        function openAllTabs() {
+            if (!currentQuery) return;
+            const encoded = encodeURIComponent(currentQuery);
+            window.open(`https://www.google.com/search?q=${encoded}`, "_blank");
+            window.open(`https://www.youtube.com/results?search_query=${encoded}`, "_blank");
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encoded}`, "_blank");
+            window.open(`https://bn.wikipedia.org/w/index.php?search=${encoded}`, "_blank");
+            showToast("৪টি প্ল্যাটফর্ম নতুন ট্যাবে ওপেন করা হয়েছে! (পপ-আপ ব্লক থাকলে অনুমতি দিন)");
+        }
+
+        function copyWikiSummary() {
+            if (!currentWikiText) {
+                showToast("কপি করার মতো কোনো সারসংক্ষেপ নেই।");
+                return;
+            }
+            const tempTextarea = document.createElement("textarea");
+            tempTextarea.value = currentWikiText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand("copy");
+                showToast("উইকিপিডিয়া সারসংক্ষেপ কপি হয়েছে! 📋");
+            } catch (err) {
+                showToast("কপি করতে ব্যর্থ হয়েছে।");
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        function resetHome() {
+            document.getElementById("search-input").value = "";
+            document.getElementById("clear-search-btn").classList.add("hidden");
+            document.getElementById("search-results-section").classList.add("hidden");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // ==========================================
+        // 4. MOOD & PROBLEM SOLVER RENDERING
+        // ==========================================
+        function renderMoodButtons() {
+            const grid = document.getElementById("mood-buttons-grid");
+            grid.innerHTML = moodData.map(mood => `
+                <button 
+                    type="button"
+                    id="mood-btn-${mood.id}"
+                    onclick="selectMood('${mood.id}')"
+                    class="mood-card-btn group p-4 rounded-2xl border-2 text-left transition-all duration-200 flex flex-col items-center justify-center text-center gap-2 bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-md active:scale-95"
+                >
+                    <span class="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">${mood.emoji}</span>
+                    <span class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">${mood.title}</span>
+                </button>
+            `).join("");
+        }
+
+        function selectMood(moodId) {
+            activeMoodId = moodId;
+            const selected = moodData.find(m => m.id === moodId);
+            if (!selected) return;
+
+            // Update active button styling
+            document.querySelectorAll(".mood-card-btn").forEach(btn => {
+                btn.classList.remove("ring-2", "ring-indigo-500", "border-indigo-500", "bg-indigo-50/50", "dark:bg-indigo-950/30");
+            });
+            const activeBtn = document.getElementById(`mood-btn-${moodId}`);
+            if (activeBtn) {
+                activeBtn.classList.add("ring-2", "ring-indigo-500", "border-indigo-500", "bg-indigo-50/50", "dark:bg-indigo-950/30");
+            }
+
+            // Render Solution Panel
+            const panel = document.getElementById("mood-solution-panel");
+            panel.innerHTML = `
+                <div class="animate-fade-in space-y-6">
+                    <!-- Top Header Banner -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${selected.bgGradient} text-white flex items-center justify-center text-3xl shadow-lg shrink-0">
+                                ${selected.emoji}
+                            </div>
+                            <div>
+                                <span class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full ${selected.badgeBg} mb-1">
+                                    ${selected.title} মোড
+                                </span>
+                                <h4 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                                    ${selected.headline}
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Grid: Instant Advice + Shortcut Cards -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Left: Instant Actionable Advice (5 cols) -->
+                        <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl p-5 border border-slate-200/70 dark:border-slate-700/70 space-y-4">
+                            <div class="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100 text-base sm:text-lg">
+                                <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                                <span>তাৎক্ষণিক কার্যকরী পরামর্শ</span>
+                            </div>
+                            <ul class="space-y-3">
+                                ${selected.advice.map((tip, index) => `
+                                    <li class="flex items-start gap-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        <span class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                            ${index + 1}
+                                        </span>
+                                        <span>${tip}</span>
+                                    </li>
+                                `).join("")}
+                            </ul>
+                        </div>
+
+                        <!-- Right: Curated Video & Website Shortcuts (7 cols) -->
+                        <div class="lg:col-span-7 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-800 dark:text-slate-100 text-base sm:text-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-compass text-indigo-500"></i>
+                                    <span>প্রয়োজনীয় ভিডিও ও ওয়েবসাইট শর্টকাট</span>
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                ${selected.shortcuts.map(item => `
+                                    <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="group p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all hover:shadow-md flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-lg">
+                                                    <i class="${item.icon}"></i>
+                                                </div>
+                                                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                    ${item.type}
+                                                </span>
+                                            </div>
+                                            <h5 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                                ${item.title}
+                                            </h5>
+                                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                                ${item.desc}
+                                            </p>
+                                        </div>
+                                        <div class="mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                            <span>ভিজিট করুন</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square group-hover:translate-x-0.5 transition-transform"></i>
+                                        </div>
+                                    </a>
+                                `).join("")}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 5. CUSTOM TOAST MESSAGE HELPER
+        // ==========================================
+        function showToast(message) {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = "pointer-events-auto flex items-center gap-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-xl text-sm font-medium animate-fade-in";
+            toast.innerHTML = `
+                <i class="fa-solid fa-circle-info text-indigo-400 dark:text-indigo-600"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(10px)";
+                toast.style.transition = "all 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
